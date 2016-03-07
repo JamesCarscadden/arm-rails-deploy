@@ -82,7 +82,7 @@
     "wadcfgxstart": "[concat(variables('wadlogs'), variables('wadperfcountersstart'), variables('wadperfcounters1'), variables('wadperfcounters2'), variables('wadperfcounters3'), variables('wadperfcounters4'), variables('wadperfcountersend'), '<Metrics resourceId=\"')]",
     "wadmetricsresourceid": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', variables('diagnosticsStorageAccountResourceGroup'), '/providers/', 'Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
     "wadcfgxend": "\"><MetricAggregation scheduledTransferPeriod=\"PT1H\"/><MetricAggregation scheduledTransferPeriod=\"PT1M\"/></Metrics></DiagnosticMonitorConfiguration></WadCfg>",
-    "installloc": "https://raw.githubusercontent.com/JamesCarscadden/arm-agent-rails/master/",
+    "installloc": "https://raw.githubusercontent.com/JamesCarscadden/arm-rails-deploy/master",
     "bootstrapfile": "install.sh",
     "bootstrapuri": "[concat(variables('installloc'), variables('bootstrapfile'))]",
     "bootstrapcmd": "[concat('sh ', variables('bootstrapfile'), ' ', parameters('postgresPassword'), ' ', parameters('postgresUser'), ' ', parameters('postgresUserPassword'))]"

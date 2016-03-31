@@ -85,7 +85,7 @@
     "installloc": "https://raw.githubusercontent.com/JamesCarscadden/arm-rails-deploy/master/",
     "bootstrapfile": "install.sh",
     "bootstrapuri": "[concat(variables('installloc'), variables('bootstrapfile'))]",
-    "bootstrapcmd": "[concat('sh ', variables('bootstrapfile'), ' ', parameters('postgresPassword'), ' ', parameters('postgresUser'), ' ', parameters('postgresUserPassword'))]"
+    "bootstrapcmd": "[concat('sh ', variables('bootstrapfile'), ' ', parameters('adminUsername'), ' ', parameters('postgresPassword'), ' ', parameters('postgresUser'), ' ', parameters('postgresUserPassword'))]"
   },
   "resources": [
     {

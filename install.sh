@@ -8,16 +8,18 @@ echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" > /etc/apt/sour
 apt-get update
 apt-get install -y linux-image-extra-$(uname -r) apparmor docker-engine git
 
+usermod -a -G docker ${1}
+
 # Get docker container for postgres
 docker pull postgres
 
 # Run postgres docker container
-docker run --name railsPostgres --restart=always -e POSTGRES_PASSWORD=${1} -d postgres
+docker run --name railsPostgres --restart=always -e POSTGRES_PASSWORD=${2} -d postgres
 
 # Wait for postgres to start up
 sleep 20
 
 # Create an application in postgres
-dosql="CREATE ROLE ${2} WITH LOGIN CREATEDB PASSWORD '${3}'"
-conn="postgresql://postgres:${1}@railsPostgres:5432"
+dosql="CREATE ROLE ${3} WITH LOGIN CREATEDB PASSWORD '${4}'"
+conn="postgresql://postgres:${2}@railsPostgres:5432"
 docker run -i --link railsPostgres:postgres --rm postgres sh -c "exec psql $conn -c \"$dosql\""

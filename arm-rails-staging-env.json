@@ -2,13 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "vmName": {
-      "type": "string",
-      "minLength" : 1,
-      "metadata": {
-        "description": "The name of the Virtual Machine"
-      }
-    },
     "adminUsername": {
       "type": "string",
       "minLength": 1,
@@ -49,6 +42,7 @@
     }
   },
   "variables": {
+    "vmName": "Application_1",
     "apiVersion": "2015-06-15",
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
@@ -80,7 +74,7 @@
     "wadperfcounters4": "<PerformanceCounterConfiguration counterSpecifier=\"\\NetworkInterface\\BytesTotal\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Network bytes\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\NetworkInterface\\BytesTransmitted\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Network bytes sent\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\NetworkInterface\\BytesReceived\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Network bytes received\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\NetworkInterface\\PacketsTransmitted\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Network packets sent\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\NetworkInterface\\PacketsReceived\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Network packets received\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\NetworkInterface\\TotalRxErrors\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Network packets received errors\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\NetworkInterface\\TotalTxErrors\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Network packets sent errors\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\NetworkInterface\\TotalCollisions\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Network collisions\" locale=\"en-us\"/></PerformanceCounterConfiguration>",
     "wadperfcountersend": "</PerformanceCounters>",
     "wadcfgxstart": "[concat(variables('wadlogs'), variables('wadperfcountersstart'), variables('wadperfcounters1'), variables('wadperfcounters2'), variables('wadperfcounters3'), variables('wadperfcounters4'), variables('wadperfcountersend'), '<Metrics resourceId=\"')]",
-    "wadmetricsresourceid": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', variables('diagnosticsStorageAccountResourceGroup'), '/providers/', 'Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
+    "wadmetricsresourceid": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', variables('diagnosticsStorageAccountResourceGroup'), '/providers/', 'Microsoft.Compute/virtualMachines/', variables('vmName'))]",
     "wadcfgxend": "\"><MetricAggregation scheduledTransferPeriod=\"PT1H\"/><MetricAggregation scheduledTransferPeriod=\"PT1M\"/></Metrics></DiagnosticMonitorConfiguration></WadCfg>",
     "installloc": "https://raw.githubusercontent.com/JamesCarscadden/arm-rails-deploy/master/",
     "bootstrapfile": "install.sh",
@@ -213,7 +207,7 @@
     {
       "apiVersion": "[variables('apiVersion')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[parameters('vmName')]",
+      "name": "[variables('vmName')]",
       "location": "[resourceGroup().location]",
       "tags": {
         "displayName": "VirtualMachine"
@@ -227,7 +221,7 @@
           "vmSize": "[variables('vmSize')]"
         },
         "osProfile": {
-          "computerName": "[parameters('vmName')]",
+          "computerName": "[variables('vmName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]",
           "linuxConfiguration": {
@@ -274,7 +268,7 @@
             "displayName": "AzureDiagnostics"
           },
           "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+            "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
           ],
           "properties": {
             "publisher": "Microsoft.OSTCExtensions",
@@ -293,19 +287,46 @@
         },
         {
           "type": "extensions",
-          "name": "installAgent",
+          "name": "installTools",
           "apiVersion": "[variables('apiVersion')]",
           "location": "[resourceGroup().location]",
           "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+            "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
           ],
           "properties": {
             "publisher": "Microsoft.OSTCExtensions",
             "type": "CustomScriptForLinux",
             "typeHandlerVersion": "1.4",
             "settings": {
-              "fileUris": [ "[variables('bootstrapuri')]" ],
+              "fileUris": [ "[variables('bootstrapuri')]" ]
+            },
+            "protectedSettings": {
               "commandToExecute": "[variables('bootstrapcmd')]"
+            }
+          }
+        },
+        {
+          "type": "extensions",
+          "name": "patching",
+          "apiVersion": "[variables('apiVersion')]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.OSTCExtensions",
+            "type": "OSPatchingForLinux",
+            "typeHandlerVersion": "2.3",
+            "settings": {},
+            "protectedSettings": {
+              "disabled" : "False",
+              "stop" : "False",
+              "rebootAfterPatch" : "Auto",
+              "intervalOfWeeks" : "1",
+              "dayOfWeek" : "Sunday|Wednesday",
+              "startTime" : "03:00",
+              "category" : "ImportantAndRecommended",
+              "installDuration" : "00:30"
             }
           }
         }

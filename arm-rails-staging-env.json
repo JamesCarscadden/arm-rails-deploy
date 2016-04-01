@@ -42,7 +42,7 @@
     }
   },
   "variables": {
-    "vmName": "Application_1",
+    "vmName": "Application1",
     "apiVersion": "2015-06-15",
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",

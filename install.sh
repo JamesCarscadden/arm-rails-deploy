@@ -1,6 +1,12 @@
 #!/bin/sh
+set -e
 
-# add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
+# attempt to avoid problems with dpkg being locked by other processes which are
+# presumably running as part of the ARM provisioning
+sleep 2m
+
+# add our user and group first to make sure their IDs get assigned consistently,
+# regardless of whatever dependencies get added
 groupadd -r railsapp && useradd -r -g railsapp railsapp
 
 # Install docker and GIT

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
-RUN groupadd -r railsapp && useradd -r -g railsapp railsapp
+groupadd -r railsapp && useradd -r -g railsapp railsapp
 
 # Install docker and GIT
 apt-get update
